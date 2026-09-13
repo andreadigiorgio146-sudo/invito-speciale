@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Una domanda speciale</title>
+
+<!-- Inclusione della libreria ufficiale di EmailJS -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#ff9a9e,#fad0c4);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.card{
+    position:relative;
+    background:white;
+    width:90%;
+    max-width:500px;
+    padding:35px;
+    border-radius:20px;
+    box-shadow:0 15px 35px rgba(0,0,0,.2);
+    text-align:center;
+    overflow:hidden;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+h1{
+    color:#ff4d6d;
+    margin-bottom:20px;
+}
+
+p{
+    margin-bottom:20px;
+    color:#555;
+    font-size: 18px;
+}
+
+button{
+    padding:14px 25px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:16px;
+    margin:8px;
+    transition:.2s;
+    font-weight: bold;
+}
+
+.si{
+    background:#ff4d6d;
+    color:white;
+}
+
+.si:hover{
+    background:#ff2f56;
+}
+
+.no{
+    background:#ddd;
+    color: #555;
+    transition:.25s,left .3s,top .3s;
+}
+
+.ritorna {
+    background:#555;
+    color:white;
+    margin-top:15px;
+}
+
+.ritorna:hover {
+    background:#333;
+}
+
+input, select{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:2px solid #ddd;
+    margin-bottom:15px;
+    font-size:16px;
+    background-color: white;
+}
+
+/* Tutti gli step secondari partono rigorosamente NASCOSTI */
+#step2, #stepNo, #stepLoading, #result {
+    display:none;
+}
+
+/* =========================================
+   ANIMAZIONE GUFETTO INTERO (VOLO REALE)
+   ========================================= */
+
+.owl-container {
+    width: 140px;
+    height: 140px;
+    animation: floating 2s ease-in-out infinite;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.owl-wing-left {
+    transform-origin: 45px 55px;
+    animation: flapLeft 0.3s ease-in-out infinite alternate;
+}
+
+.owl-wing-right {
+    transform-origin: 95px 55px;
+    animation: flapRight 0.3s ease-in-out infinite alternate;
+}
+
+@keyframes floating {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes flapLeft {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(25deg); }
+}
+
+@keyframes flapRight {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(-25deg); }
+}
+
+.loader-bar {
+    width: 80%;
+    height: 8px;
+    background-color: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 15px auto;
+}
+
+.loader-fill {
+    width: 0%;
+    height: 100%;
+    background-color: #ff4d6d;
+    border-radius: 4px;
+}
+
+.start-loading {
+    animation: fillBar 3s linear forwards;
+}
+
+@keyframes fillBar {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+#step1-body {
+    position: relative;
+    min-height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#result {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
+}
+</style>
+
+</head>
+<body>
+
+<div class="card">
+
+    <div id="step1">
+        <h1>Una domanda speciale</h1>
+        <p>Vuoi uscire con me?</p>
+        <div id="step1-body">
+            <button class="si" onclick="yesWithAnimation()">Sì</button>
+            <button class="no" id="noBtn" onclick="no()">No</button>
+        </div>
+    </div>
+
+    <div id="stepLoading">
+        <h1>Risposta in arrivo...</h1>
+       
+        <div class="owl-container">
+            <svg viewBox="0 0 140 140" width="100%" height="100%">
+                <circle cx="55" cy="115" r="6" fill="#facc15" />
+                <circle cx="85" cy="115" r="6" fill="#facc15" />
+               
+                <polygon points="60,110 70,125 80,110" fill="#7d344c" />
+
+                <ellipse cx="70" cy="75" rx="35" ry="40" fill="#93445e" />
+                <ellipse cx="70" cy="85" rx="22" ry="25" fill="#fdf2f8" />
+               
+                <path d="M65,75 Q70,80 75,75 M60,85 Q70,90 80,85 M65,95 Q70,100 75,95" fill="none" stroke="#db2777" stroke-width="2" stroke-linecap="round"/>
+
+                <polygon points="35,45 50,30 65,42" fill="#93445e" />
+                <polygon points="105,45 90,30 75,42" fill="#93445e" />
+                <circle cx="70" cy="52" r="32" fill="#93445e" />
+
+                <circle cx="55" cy="50" r="11" fill="white" />
+                <circle cx="85" cy="50" r="11" fill="white" />
+                <circle cx="55" cy="50" r="5" fill="#475569" />
+                <circle cx="85" cy="50" r="5" fill="#475569" />
+                <circle cx="53" cy="48" r="2" fill="white" />
+                <circle cx="83" cy="48" r="2" fill="white" />
+
+                <polygon points="70,58 64,68 76,68" fill="#facc15" />
+
+                <g transform="translate(52, 68)">
+                    <rect x="0" y="0" width="36" height="22" rx="2" fill="white" stroke="#475569" stroke-width="1.5" />
+                    <path d="M0,0 L18,11 L36,0" fill="none" stroke="#475569" stroke-width="1.5" />
+                    <circle cx="18" cy="15" r="3" fill="#ff4d6d" />
+                </g>
+
+                <g class="owl-wing-left">
+                    <path d="M40,55 C15,50 10,75 38,85 Z" fill="#7d344c" />
+                </g>
+
+                <g class="owl-wing-right">
+                    <path d="M100,55 C125,50 130,75 102,85 Z" fill="#7d344c" />
+                </g>
+            </svg>
+        </div>
+
+        <p>Il gufetto postino sta volando da te...</p>
+        <div class="loader-bar">
+            <div id="progressBar" class="loader-fill"></div>
+        </div>
+    </div>
+
+    <div id="step2">
+        <h1>Fantastico!</h1>
+        <p>Scegli cosa fare, il giorno e l'orario.</p>
+       
+        <select id="activity">
+            <option value="" disabled selected>Cosa facciamo? </option>
+            <option value="Andare a sfondarci ">Andare a sfondarci </option>
+            <option value="Cena romantica ">Cena romantica </option>
+            <option value="Cinema e pop-corn ">Cinema e pop-corn </option>
+            <option value="Passeggiata sotto le stelle ">Passeggiata sotto le stelle </option>
+            <option value="Sushi abbuffata ">Sushi abbuffata </option>
+            <option value="Aperitivo al tramonto ">Aperitivo al tramonto </option>
+            <option value="Serata divano e serie TV ">Serata divano e serie TV </option>
+            <option value="Gita fuori porta ">Gita fuori porta </option>
+            <option value="Dolce e gelato insieme ">Dolce e gelato insieme </option>
+            <option value="Avventura a sorpresa ">Avventura a sorpresa </option>
+        </select>
+       
+        <input type="date" id="date">
+        <input type="time" id="time">
+        <button class="si" onclick="confirmDate()">Conferma</button>
+    </div>
+
+    <div id="stepNo">
+        <h1>Grazie lo stesso...</h1>
+        <p>Va bene, grazie comunque per aver risposto. Ti auguro una splendida giornata</p>
+        <button class="ritorna" onclick="goBack()">Ripensaci</button>
+    </div>
+
+    <div id="result"></div>
+
+</div>
+
+<script>
+// =========================================
+// INIZIALIZZAZIONE EMAILJS CON NUOVA PUBLIC KEY
+// =========================================
+(function(){
+    emailjs.init("vo8us3PdVwBS54ecr");
+})();
+
+// =========================================
+// LOGICA BOTTONE "NO" CHE SCAPPA
+// =========================================
+const noBtn = document.getElementById("noBtn");
+let moves = 0;
+const texts = ["No", "Sei sicura?", "Pensaci", "Davvero?"];
+
+function escapeButton(e) {
+    if (moves < 3) {
+        if (e.type === "touchstart") {
+            e.preventDefault();
+        }
+    }
+
+    if(moves < texts.length-1){
+        noBtn.innerHTML = texts[moves+1];
+    }
+
+    if(moves < 3){
+        const card = document.querySelector(".card");
+        const maxX = card.clientWidth - noBtn.offsetWidth - 60;
+        const maxY = card.clientHeight - noBtn.offsetHeight - 80;
+
+        noBtn.style.position = "absolute";
+        noBtn.style.left = Math.max(10, Math.random() * maxX) + "px";
+        noBtn.style.top = Math.max(10, Math.random() * maxY) + "px";
+    }
+    moves++;
+}
+
+noBtn.addEventListener("mouseenter", escapeButton);
+noBtn.addEventListener("touchstart", escapeButton, { passive: false });
+
+// =========================================
+// FUNZIONE GENERICA INVIO EMAIL
+// =========================================
+function sendEmailNotification(data) {
+    emailjs.send("service_xhqduvv", "template_i5whrri", data).then(
+        function(response) {
+            console.log('Email inviata con successo!', response.status, response.text);
+        },
+        function(error) {
+            console.error('Errore nell\'invio dell\'email...', error);
+        }
+    );
+}
+
+// =========================================
+// FUNZIONI DI NAVIGAZIONE INTERNA
+// =========================================
+
+function yesWithAnimation(){
+    document.getElementById("step1").style.display="none";
+   
+    const loadingScreen = document.getElementById("stepLoading");
+    loadingScreen.style.display="flex";
+    loadingScreen.style.flexDirection="column";
+    loadingScreen.style.alignItems="center";
+    loadingScreen.style.justifyContent="center";
+   
+    document.getElementById("progressBar").classList.add("start-loading");
+
+    setTimeout(function(){
+        loadingScreen.style.display="none";
+        document.getElementById("step2").style.display="block";
+    }, 3000);
+}
+
+function no(){
+    document.getElementById("step1").style.display="none";
+    document.getElementById("stepNo").style.display="block";
+
+    // Invio mail per risposta "NO"
+    sendEmailNotification({
+        attivita: "Risposta: NO 😢",
+        data: "N/D",
+        orario: "N/D"
+    });
+}
+
+function confirmDate(){
+    let act = document.getElementById("activity").value;
+    let d = document.getElementById("date").value;
+    let t = document.getElementById("time").value;
+
+    if(act=="" || d=="" || t==""){
+        alert("Scegli un'attività, una data e un orario!");
+        return;
+    }
+
+    let formattedDate = d.split("-").reverse().join("/");
+
+    // Mostra subito il messaggio di successo alla persona
+    document.getElementById("step2").style.display="none";
+    document.getElementById("result").style.display="block";
+    document.getElementById("result").innerHTML =
+    `Non vedo l'ora! <br><br>
+    Programma: <b>${act}</b><br>
+    Il giorno <b>${formattedDate}</b> alle <b>${t}</b>.`;
+
+    // Invio mail con i dati scelti
+    sendEmailNotification({
+        attivita: act,
+        data: formattedDate,
+        orario: t
+    });
+}
+
+function goBack(){
+    document.getElementById("stepNo").style.display="none";
+    document.getElementById("step1").style.display="block";
+   
+    document.getElementById("progressBar").classList.remove("start-loading");
+   
+    moves = 0;
+    noBtn.innerHTML = texts[0];
+    noBtn.style.position = "static";
+    noBtn.style.left = "auto";
+    noBtn.style.top = "auto";
+   
+    document.getElementById("activity").value = "";
+}
+</script>
+
+</body>
+</html>
